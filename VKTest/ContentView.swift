@@ -8,11 +8,71 @@
 import SwiftUI
 
 struct ContentView: View {
+    
     @State var isInfected: [Bool] = Array(repeating: false, count: 49)
-    
+    @State var infectedCount = 0
     let infectionProbability = 20
+    var workItem: DispatchWorkItem?
     
-    func infectNeighbors(index: Int) {
+    var body: some View {
+        VStack {
+            
+            Text("Corova Virus Online")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .padding()
+            
+            Spacer()
+            
+            Text("Заражённых людей: \(infectedCount)")
+                .padding(.bottom, 40)
+            
+            ForEach(0..<7) { row in
+                HStack {
+                    ForEach(0..<7) { column in
+                        let index = row*7+column
+                        Image(systemName: isInfected[index] ? "person.crop.circle.badge.exclamationmark" : "person.crop.circle")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .foregroundColor(isInfected[index] ? .red : .gray)
+                            .frame(width: 40, height: 40)
+                            .onTapGesture {
+                                if !isInfected[index] {
+                                    isInfected[index] = true
+                                    infectedCount += 1
+                                    infectNeighbors(index: index, isInfected: $isInfected)
+                                }
+                            }
+                    }
+                }
+            }
+            
+            Spacer(minLength: 80)
+            
+            Button {
+                isInfected = Array(repeating: false, count: 49)
+                workItem?.cancel()
+                infectedCount = 0
+            } label: {
+                ZStack {
+                    Rectangle()
+                        .foregroundColor(.white)
+                        .cornerRadius(30)
+                        .shadow(radius: 4, x: -3, y: 2)
+                        .frame(width: 100, height: 50)
+                    
+                    Text("Reset")
+                        .foregroundColor(.black)
+                }
+            }
+            
+            Spacer()
+            
+        }
+        .padding()
+    }
+    
+    func infectNeighbors(index: Int, isInfected: Binding<[Bool]>) {
         let row = index / 7
         let col = index % 7
         var neighborIndices: [Int] = []
@@ -23,42 +83,15 @@ struct ContentView: View {
         if col < 6 { neighborIndices.append(index + 1) }
         
         for neighborIndex in neighborIndices {
-            if !isInfected[neighborIndex] && Int.random(in: 0...35) <= infectionProbability {
-                isInfected[neighborIndex] = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self.infectNeighbors(index: neighborIndex)
+            if !isInfected.wrappedValue[neighborIndex] && Int.random(in: 0...35) <= infectionProbability {
+                isInfected.wrappedValue[neighborIndex] = true
+                infectedCount += 1
+                let workItem = DispatchWorkItem {
+                    infectNeighbors(index: neighborIndex, isInfected: isInfected)
                 }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem)
             }
         }
-    }
-
-    var body: some View {
-        VStack {
-            
-            ForEach(0..<7) { row in
-                HStack {
-                    ForEach(0..<7) { column in
-                        let index = row*7+column
-                        Circle()
-                            .foregroundColor(isInfected[index] ? .red : .gray)
-                            .frame(width: 40, height: 40)
-                            .onTapGesture {
-                                if !isInfected[index] {
-                                    isInfected[index] = true
-                                    infectNeighbors(index: index)
-                                }
-                            }
-                    }
-                }
-            }
-            
-            Button("Reset") {
-                isInfected = Array(repeating: false, count: 49)
-            }
-            .padding(.top, 50)
-            .foregroundColor(.black)
-        }
-        .padding()
     }
 }
 
