@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @State var isInfected: [Bool] = Array(repeating: false, count: 49)
+    @State var isInfected: [Bool] = Array(repeating: false, count: 100)
     @State var infectedCount = 0
     let infectionProbability = 20
     var workItem: DispatchWorkItem?
@@ -27,15 +27,15 @@ struct ContentView: View {
             Text("Заражённых людей: \(infectedCount)")
                 .padding(.bottom, 40)
             
-            ForEach(0..<7) { row in
+            ForEach(0..<10) { row in
                 HStack {
-                    ForEach(0..<7) { column in
+                    ForEach(0..<10) { column in
                         let index = row*7+column
                         Image(systemName: isInfected[index] ? "person.crop.circle.badge.exclamationmark" : "person.crop.circle")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .foregroundColor(isInfected[index] ? .red : .gray)
-                            .frame(width: 40, height: 40)
+                            .frame(width: 20, height: 20)
                             .onTapGesture {
                                 if !isInfected[index] {
                                     isInfected[index] = true
@@ -50,7 +50,7 @@ struct ContentView: View {
             Spacer(minLength: 80)
             
             Button {
-                isInfected = Array(repeating: false, count: 49)
+                isInfected = Array(repeating: false, count: 100)
                 workItem?.cancel()
                 infectedCount = 0
             } label: {
