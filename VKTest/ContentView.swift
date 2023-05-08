@@ -30,7 +30,7 @@ struct ContentView: View {
             ForEach(0..<10) { row in
                 HStack {
                     ForEach(0..<10) { column in
-                        let index = row*7+column
+                        let index = row*10+column
                         Image(systemName: isInfected[index] ? "person.crop.circle.badge.exclamationmark" : "person.crop.circle")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -73,14 +73,14 @@ struct ContentView: View {
     }
     
     func infectNeighbors(index: Int, isInfected: Binding<[Bool]>) {
-        let row = index / 7
-        let col = index % 7
+        let row = index / 10
+        let col = index % 10
         var neighborIndices: [Int] = []
         
-        if row > 0 { neighborIndices.append(index - 7) }
-        if row < 6 { neighborIndices.append(index + 7) }
+        if row > 0 { neighborIndices.append(index - 10) }
+        if row < 9 { neighborIndices.append(index + 10) }
         if col > 0 { neighborIndices.append(index - 1) }
-        if col < 6 { neighborIndices.append(index + 1) }
+        if col < 9 { neighborIndices.append(index + 1) }
         
         for neighborIndex in neighborIndices {
             if !isInfected.wrappedValue[neighborIndex] && Int.random(in: 0...35) <= infectionProbability {
